@@ -7,21 +7,23 @@ const Home = () => {
     const [date, setDate] = useState(null)
     const [time, setTime] = useState(null)
     const [sec, setSec] = useState(null)
-    const isLoaded = useCachedResources()
+    const tmp = useCachedResources()
+    const isLoaded = tmp[0]
+    const table = tmp[1]
+
     const day = [ '일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일' ] 
 
     setInterval(() => {
         const datet = new Date()
+        var sec = (datet.getSeconds() < 10) ? (0 + String(datet.getSeconds())) : (datet.getSeconds())
+        var min = (datet.getMinutes() < 10) ? (0 + String(datet.getMinutes())) : (datet.getMinutes())
+        var hour = (datet.getHours() < 10) ? (0 + String(datet.getHours())) : (datet.getHours())
         const daye = `${(datet.getMonth() + 1)}/${datet.getDate()} ${day[datet.getDay()]}`
-        const time = `${datet.getHours()}:${datet.getMinutes()}`
+        const time = `${hour}:${min}`
         setTime(time)
-        setSec(`${datet.getSeconds()}`)
+        setSec(`${sec}`)
         setDate(daye)
     }, 1000);
-
-    const handleClick = () => {
-        Platform.OS === 'ios' && Vibration.vibrate([400])
-    }
 
     if(isLoaded)
     {
@@ -35,11 +37,18 @@ const Home = () => {
                         <Text style={style.Time}>{time}<Text style={style.sec}>{sec}</Text></Text>
                         <Text style={style.Date}>{date}</Text>
                     </View>
-                    <View>
-                        <Button
-                            title='Alarm'
-                            onPress={handleClick}
-                        />
+                    <View style={style.Cxt}>
+                        {
+                            table.map((wday, index) => (
+                                <View key={index}>
+                                    {
+                                        wday.map((item, ind) => (
+                                            (item.subject === '') ? (<></>) : (<Text style={style.box} key={ind}>{item.subject}</Text>)
+                                        ))
+                                    }
+                                </View>
+                            ))
+                        }
                     </View>
                 </View>
             </>
@@ -53,18 +62,46 @@ const style = StyleSheet.create({
     TopBar: {
         backgroundColor: "#5eb2f7",
     },
-    
+    content: {
+        display: 'flex',
+        alignItems: 'baseline'
+    },
+    box: {
+        width: 60,
+        height: 50,
+        fontFamily: 'Gmarket_M',
+        fontSize: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    Cxt: {
+        margin: 15,
+        marginTop: 0,
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 15,
+        shadowColor: '#c9c9c9',
+        shadowRadius: 5,
+        flexDirection: 'row'
+    },
     Title: {
         fontSize: 30,
         fontWeight: 700,
         color: "#fff",
-        margin: 10
+        margin: 20
     },
     timeCxt: {
-        margin: 10,
+        flexShrink: 1,
+        margin: 15,
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 15,
+        shadowColor: '#c9c9c9',
+        shadowRadius: 5,
     },
     Date: {
-        fontSize: 20,
+        fontSize: 25,
         fontFamily: 'Gmarket_B',
         color: "#5eb2f7",
         fontWeight: 500,
@@ -79,6 +116,7 @@ const style = StyleSheet.create({
         fontSize: 20,
         fontFamily: 'Gmarket_B',
         color: "#5eb2f7",
-        marginLeft: 10
+        paddingLeft: 3,
+        width: 35
     }
 })
